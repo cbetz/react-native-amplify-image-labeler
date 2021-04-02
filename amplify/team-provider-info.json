@@ -1,0 +1,15 @@
+{
+  "demo": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-rnimagelabeler-demo-114535-authRole",
+      "UnauthRoleArn": "arn:aws:iam::795368831530:role/amplify-rnimagelabeler-demo-114535-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::795368831530:role/amplify-rnimagelabeler-demo-114535-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-rnimagelabeler-demo-114535-deployment",
+      "UnauthRoleName": "amplify-rnimagelabeler-demo-114535-unauthRole",
+      "StackName": "amplify-rnimagelabeler-demo-114535",
+      "StackId": "arn:aws:cloudformation:us-east-1:795368831530:stack/amplify-rnimagelabeler-demo-114535/77ffc5e0-93ca-11eb-9875-12bf92df32e3",
+      "AmplifyAppId": "d20e7vufip3myh"
+    }
+  }
+}
