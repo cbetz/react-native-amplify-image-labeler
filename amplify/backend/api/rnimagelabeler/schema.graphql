@@ -1,0 +1,5 @@
+type Image @model {
+  id: ID!
+  key: String!
+  labels: [String]
+}
