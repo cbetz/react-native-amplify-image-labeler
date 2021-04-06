@@ -6,27 +6,28 @@
  * @flow strict-local
  */
 
-import React from 'react';
-import type {Node} from 'react';
+import React, { useState, useEffect } from 'react';
+import type { Node } from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   useColorScheme,
   View,
+  Button,
+  FlatList,
 } from 'react-native';
 
 import {
   Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-const Section = ({children, title}): Node => {
+import { API, graphqlOperation } from 'aws-amplify';
+import { createImage } from './graphql/mutations';
+import { listImages } from './graphql/queries';
+
+const Section = ({ children, title }): Node => {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -54,38 +55,57 @@ const Section = ({children, title}): Node => {
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [images, setImages] = useState([]);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  useEffect(() => {
+    fetchImages();
+  }, [])
+
+  async function fetchImages() {
+    try {
+      const imageData = await API.graphql(graphqlOperation(listImages));
+      const images = imageData.data.listImages.items;
+      setImages(images);
+    } catch (err) { console.log('error fetching images') }
+  }
+
+  async function addImage() {
+    try {
+      const key = (new Date()).toISOString();
+      const image = { key: key, labels: ['cat', 'animal'] };
+      setImages([...images, image]);
+      await API.graphql(graphqlOperation(createImage, { input: image }));
+    } catch (err) {
+      console.log('error creating image:', err)
+    }
+  }
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
+      <Button title="Create Image" onPress={addImage} />
+      <FlatList
+        data={images}
         contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
+        style={backgroundStyle}
+        renderItem={({ item, index }) => (
+          <View key={item.id ? item.id : index} style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+          }} >
+            <Section title={item.key}>
+              {item.labels.map((label, index) => (
+                <Text key={index}>{label}, </Text>
+              ))
+              }
+            </Section>
+          </View>
+        )}
+      >
+      </FlatList>
     </SafeAreaView>
   );
 };
