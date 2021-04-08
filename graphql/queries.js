@@ -9,6 +9,7 @@ export const getImage = /* GraphQL */ `
       labels
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -25,6 +26,7 @@ export const listImages = /* GraphQL */ `
         labels
         createdAt
         updatedAt
+        owner
       }
       nextToken
     }

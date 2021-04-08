@@ -2,35 +2,38 @@
 // this is an auto generated file. This will be overwritten
 
 export const onCreateImage = /* GraphQL */ `
-  subscription OnCreateImage {
-    onCreateImage {
+  subscription OnCreateImage($owner: String!) {
+    onCreateImage(owner: $owner) {
       id
       key
       labels
       createdAt
       updatedAt
+      owner
     }
   }
 `;
 export const onUpdateImage = /* GraphQL */ `
-  subscription OnUpdateImage {
-    onUpdateImage {
+  subscription OnUpdateImage($owner: String!) {
+    onUpdateImage(owner: $owner) {
       id
       key
       labels
       createdAt
       updatedAt
+      owner
     }
   }
 `;
 export const onDeleteImage = /* GraphQL */ `
-  subscription OnDeleteImage {
-    onDeleteImage {
+  subscription OnDeleteImage($owner: String!) {
+    onDeleteImage(owner: $owner) {
       id
       key
       labels
       createdAt
       updatedAt
+      owner
     }
   }
 `;

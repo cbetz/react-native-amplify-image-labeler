@@ -12,6 +12,7 @@ export const createImage = /* GraphQL */ `
       labels
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -26,6 +27,7 @@ export const updateImage = /* GraphQL */ `
       labels
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -40,6 +42,7 @@ export const deleteImage = /* GraphQL */ `
       labels
       createdAt
       updatedAt
+      owner
     }
   }
 `;

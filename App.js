@@ -18,6 +18,7 @@ import {
 import { API, graphqlOperation } from 'aws-amplify';
 import { createImage } from './graphql/mutations';
 import { listImages } from './graphql/queries';
+import { withAuthenticator } from 'aws-amplify-react-native';
 
 const Section = ({ children, title }): Node => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -121,4 +122,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default withAuthenticator(App);

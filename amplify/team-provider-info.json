@@ -10,6 +10,11 @@
       "StackName": "amplify-rnimagelabeler-demo-114535",
       "StackId": "arn:aws:cloudformation:us-east-1:795368831530:stack/amplify-rnimagelabeler-demo-114535/77ffc5e0-93ca-11eb-9875-12bf92df32e3",
       "AmplifyAppId": "d20e7vufip3myh"
+    },
+    "categories": {
+      "auth": {
+        "rnimagelabelercd706f3b": {}
+      }
     }
   }
 }

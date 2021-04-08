@@ -1,5 +1,11 @@
 {
   "AppSyncApiName": "rnimagelabeler",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authrnimagelabelercd706f3b",
+      "Outputs.UserPoolId"
+    ]
+  }
 }
