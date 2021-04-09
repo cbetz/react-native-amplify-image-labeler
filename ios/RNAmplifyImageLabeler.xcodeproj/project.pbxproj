@@ -122,6 +122,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				B634ED8F9AB27F80B9E46B8C /* Pods */,
+				D9688CD5E1D946368F764BB0 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -146,6 +147,14 @@
 				7D20B6F7AA051FE4D1BADDD2 /* Pods-RNAmplifyImageLabeler-RNAmplifyImageLabelerTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		D9688CD5E1D946368F764BB0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

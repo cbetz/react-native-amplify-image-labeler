@@ -12,12 +12,13 @@ import {
 } from 'react-native';
 
 import { RNCamera } from 'react-native-camera';
+import { Appbar, Card, Paragraph } from 'react-native-paper';
 
 import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
 
-import { API, graphqlOperation, Storage, Predictions } from 'aws-amplify';
+import { API, graphqlOperation, Storage, Predictions, Auth } from 'aws-amplify';
 import { createImage } from './graphql/mutations';
 import { listImages } from './graphql/queries';
 import { withAuthenticator, S3Image } from 'aws-amplify-react-native';
@@ -55,6 +56,7 @@ const App = () => {
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    flex: 1,
   };
 
   useEffect(() => {
@@ -88,7 +90,7 @@ const App = () => {
           }).then(result => {
             const { labels } = result;
             const labelNames = labels.map(l => l.name);
-            
+
             addImage(key, labelNames);
             setShowCamera(false);
           }).catch(err => {
@@ -100,6 +102,14 @@ const App = () => {
         });
     }
   };
+
+  async function onSignOutPressed() {
+    try {
+      await Auth.signOut();
+    } catch (error) {
+      console.log('error signing out: ', error);
+    }
+  }
 
   async function fetchImages() {
     try {
@@ -144,31 +154,37 @@ const App = () => {
     )
   } else {
     return (
-      <SafeAreaView style={backgroundStyle}>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <Button title="Take Picture" onPress={onShowCameraPressed} />
-        <FlatList
-          data={images}
-          contentInsetAdjustmentBehavior="automatic"
-          style={backgroundStyle}
-          renderItem={({ item, index }) => (
-            <View key={item.id ? item.id : index} style={{
-              backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            }} >
-              <View style={styles.imageContainer}>
-                <S3Image level="private" imgKey={item.key} style={styles.image} />
-              </View>
-              <Section title={item.key}>
-                {item.labels.map((label, index) => (
-                  <Text key={index}>{label}, </Text>
-                ))
-                }
-              </Section>
-            </View>
-          )}
-        >
-        </FlatList>
-      </SafeAreaView>
+      <>
+        <Appbar.Header>
+          <Appbar.Content title="Amplify Image Labeler" />
+          <Appbar.Action icon="camera" onPress={onShowCameraPressed} />
+          <Appbar.Action icon="logout" onPress={onSignOutPressed} />
+        </Appbar.Header>
+        <SafeAreaView style={backgroundStyle}>
+
+          <FlatList
+            data={images}
+            contentInsetAdjustmentBehavior="automatic"
+            style={backgroundStyle}
+            renderItem={({ item, index }) => (
+              <Card key={item.id ? item.id : index} style={styles.card} >
+                <View style={styles.imageContainer}>
+                  <S3Image level="private" imgKey={item.key} style={styles.image} />
+                </View>
+                <Card.Title title="Labels" />
+                <Card.Content>
+                  {item.labels.map((label, index) => (
+                    <Paragraph key={index}>{label}</Paragraph>
+                  ))
+                  }
+                </Card.Content>
+              </Card>
+            )}
+          >
+          </FlatList>
+
+        </SafeAreaView>
+      </>
     );
   }
 };
@@ -218,6 +234,9 @@ const styles = StyleSheet.create({
     padding: 16,
     justifyContent: 'flex-end',
     resizeMode: 'cover',
+  },
+  card: {
+    margin: 4,
   },
 });
 

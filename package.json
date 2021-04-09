@@ -16,7 +16,9 @@
     "aws-amplify-react-native": "^4.3.2",
     "react": "17.0.1",
     "react-native": "0.64.0",
-    "react-native-camera": "^3.43.3"
+    "react-native-camera": "^3.43.3",
+    "react-native-paper": "^4.7.2",
+    "react-native-vector-icons": "^8.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
