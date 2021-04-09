@@ -29,5 +29,13 @@
       "service": "S3",
       "providerPlugin": "awscloudformation"
     }
+  },
+  "predictions": {
+    "rnamplifyimagelabeler": {
+      "providerPlugin": "awscloudformation",
+      "service": "Rekognition",
+      "dependsOn": [],
+      "identifyType": "identifyLabels"
+    }
   }
 }

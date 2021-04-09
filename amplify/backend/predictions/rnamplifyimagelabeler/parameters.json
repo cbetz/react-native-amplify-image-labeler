@@ -1,0 +1,15 @@
+{
+    "resourceName": "rnamplifyimagelabeler",
+    "identifyPolicyName": "identifyPolicy1cc74842",
+    "authRoleName": {
+        "Ref": "AuthRoleName"
+    },
+    "unauthRoleName": {
+        "Ref": "UnauthRoleName"
+    },
+    "adminAuthProtected": "DISALLOW",
+    "adminGuestProtected": "DISALLOW",
+    "identifyType": "identifyLabels",
+    "access": "auth",
+    "type": "LABELS"
+}

@@ -17,7 +17,7 @@ import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
 
-import { API, graphqlOperation, Storage } from 'aws-amplify';
+import { API, graphqlOperation, Storage, Predictions } from 'aws-amplify';
 import { createImage } from './graphql/mutations';
 import { listImages } from './graphql/queries';
 import { withAuthenticator, S3Image } from 'aws-amplify-react-native';
@@ -77,12 +77,26 @@ const App = () => {
 
       Storage.put(key, blob, { level: 'private' })
         .then(result => {
-          console.log(result)
-          addImage(key);
-          setShowCamera(false);
+          Predictions.identify({
+            labels: {
+              source: {
+                key: key,
+                level: 'private'
+              },
+              type: "ALL"
+            }
+          }).then(result => {
+            const { labels } = result;
+            const labelNames = labels.map(l => l.name);
+            
+            addImage(key, labelNames);
+            setShowCamera(false);
+          }).catch(err => {
+            console.log('error: ', err);
+          });
         })
         .catch(err => {
-          console.log(err)
+          console.log(err);
         });
     }
   };
@@ -92,16 +106,16 @@ const App = () => {
       const imageData = await API.graphql(graphqlOperation(listImages));
       const images = imageData.data.listImages.items;
       setImages(images);
-    } catch (err) { console.log('error fetching images') }
+    } catch (err) { console.log('error fetching images'); }
   }
 
-  async function addImage(key) {
+  async function addImage(key, labels) {
     try {
-      const image = { key: key, labels: ['cat', 'animal'] };
+      const image = { key: key, labels: labels };
       setImages([...images, image]);
       await API.graphql(graphqlOperation(createImage, { input: image }));
     } catch (err) {
-      console.log('error creating image:', err)
+      console.log('error creating image:', err);
     }
   }
 
@@ -142,8 +156,8 @@ const App = () => {
               backgroundColor: isDarkMode ? Colors.black : Colors.white,
             }} >
               <View style={styles.imageContainer}>
-                  <S3Image level="private" imgKey={item.key} style={styles.image}  />
-                </View>
+                <S3Image level="private" imgKey={item.key} style={styles.image} />
+              </View>
               <Section title={item.key}>
                 {item.labels.map((label, index) => (
                   <Text key={index}>{label}, </Text>
