@@ -23,5 +23,11 @@
       "dependsOn": [],
       "customAuth": false
     }
+  },
+  "storage": {
+    "rnamplifyimagelabelerstorage": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
   }
 }

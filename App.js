@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import type { Node } from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -9,16 +8,19 @@ import {
   View,
   Button,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
+
+import { RNCamera } from 'react-native-camera';
 
 import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
 
-import { API, graphqlOperation } from 'aws-amplify';
+import { API, graphqlOperation, Storage } from 'aws-amplify';
 import { createImage } from './graphql/mutations';
 import { listImages } from './graphql/queries';
-import { withAuthenticator } from 'aws-amplify-react-native';
+import { withAuthenticator, S3Image } from 'aws-amplify-react-native';
 
 const Section = ({ children, title }): Node => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -46,9 +48,10 @@ const Section = ({ children, title }): Node => {
   );
 };
 
-const App: () => Node = () => {
+const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [images, setImages] = useState([]);
+  const [showCamera, setShowCamera] = useState(false)
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -58,6 +61,32 @@ const App: () => Node = () => {
     fetchImages();
   }, [])
 
+  function onShowCameraPressed() {
+    setShowCamera(true);
+  }
+
+  takePicture = async () => {
+    if (this.camera) {
+      const options = { quality: 0.5, base64: true };
+      const photo = await this.camera.takePictureAsync(options);
+
+      const response = await fetch(photo.uri);
+      const blob = await response.blob();
+
+      const key = photo.uri.split("/").pop();
+
+      Storage.put(key, blob, { level: 'private' })
+        .then(result => {
+          console.log(result)
+          addImage(key);
+          setShowCamera(false);
+        })
+        .catch(err => {
+          console.log(err)
+        });
+    }
+  };
+
   async function fetchImages() {
     try {
       const imageData = await API.graphql(graphqlOperation(listImages));
@@ -66,9 +95,8 @@ const App: () => Node = () => {
     } catch (err) { console.log('error fetching images') }
   }
 
-  async function addImage() {
+  async function addImage(key) {
     try {
-      const key = (new Date()).toISOString();
       const image = { key: key, labels: ['cat', 'animal'] };
       setImages([...images, image]);
       await API.graphql(graphqlOperation(createImage, { input: image }));
@@ -77,30 +105,58 @@ const App: () => Node = () => {
     }
   }
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Button title="Create Image" onPress={addImage} />
-      <FlatList
-        data={images}
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}
-        renderItem={({ item, index }) => (
-          <View key={item.id ? item.id : index} style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }} >
-            <Section title={item.key}>
-              {item.labels.map((label, index) => (
-                <Text key={index}>{label}, </Text>
-              ))
-              }
-            </Section>
-          </View>
-        )}
-      >
-      </FlatList>
-    </SafeAreaView>
-  );
+  if (showCamera) {
+    return (
+      <View style={styles.cameraContainer}>
+        <RNCamera
+          ref={ref => {
+            this.camera = ref;
+          }}
+          style={styles.preview}
+          type={RNCamera.Constants.Type.back}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera to label images',
+            buttonPositive: 'OK',
+            buttonNegative: 'Cancel',
+          }}
+        />
+        <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
+          <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture}>
+            <Text style={{ fontSize: 14 }}> Label Image </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
+  } else {
+    return (
+      <SafeAreaView style={backgroundStyle}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <Button title="Take Picture" onPress={onShowCameraPressed} />
+        <FlatList
+          data={images}
+          contentInsetAdjustmentBehavior="automatic"
+          style={backgroundStyle}
+          renderItem={({ item, index }) => (
+            <View key={item.id ? item.id : index} style={{
+              backgroundColor: isDarkMode ? Colors.black : Colors.white,
+            }} >
+              <View style={styles.imageContainer}>
+                  <S3Image level="private" imgKey={item.key} style={styles.image}  />
+                </View>
+              <Section title={item.key}>
+                {item.labels.map((label, index) => (
+                  <Text key={index}>{label}, </Text>
+                ))
+                }
+              </Section>
+            </View>
+          )}
+        >
+        </FlatList>
+      </SafeAreaView>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -119,6 +175,35 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
+  },
+  cameraContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: 'black',
+  },
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  capture: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 15,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    margin: 20,
+  },
+  imageContainer: {
+    height: 195,
+    overflow: 'hidden',
+  },
+  image: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'flex-end',
+    resizeMode: 'cover',
   },
 });
 
